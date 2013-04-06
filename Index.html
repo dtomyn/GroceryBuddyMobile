@@ -1,0 +1,443 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Grocery Buddy</title>
+
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="format-detection" content="telephone=no">
+    
+    <link href="Content/jquery.mobile.custom.min.css" rel="stylesheet" />
+    <link href="Content/jquery.mobile.custom.structure.min.css" rel="stylesheet" />
+    <link href="Content/jquery.mobile.custom.theme.min.css" rel="stylesheet" />
+
+    <script src="Scripts/jquery-1.9.1.min.js"></script>
+    <script src="Scripts/jquery.mobile-1.3.0.min.js"></script> 
+    <script src="Scripts/knockout-2.2.1.js"></script> 
+    <script src="Scripts/jquery.validate.min.js"></script>
+    <script src="Scripts/modernizr-2.6.2.min.js"></script>
+    <!-- TODO: tried to get the knockout validation extension to work but so far not successful -->
+    <script src="Scripts/knockout.validation.js"></script>
+    <script src="Scripts/Custom/Utils.js"></script>
+
+    <!-- To make use of phone gap features simply add the below -->
+    <!-- <script src="phonegap.js"></script> -->
+    <!-- ...or is it the below? I think it is this one... -->
+    <!-- <script src="cordova.js"></script> -->
+    <!-- The below is for the barcode scanner -->
+    <!-- <script src="barcodescanner.js"></script> -->
+    <!-- Demo also shows adding this too -->
+    <!--<script src="childbrowser.js"></script>-->
+    <!-- Finally... add our custom JavaScript -->
+    <script src="Scripts/Custom/ScanIt.js"></script>
+
+    <link href="Content/Custom/AppStyles.css" rel="stylesheet" /> 
+
+    <script src="Scripts/Custom/ShoppingCart.js"></script> 
+
+    <style type="text/css">
+        .auto-style1 {
+            width: 61px;
+            height: 45px;
+        }
+    </style>
+
+</head>
+<body>
+    <!-- HOME SCREEN -->
+    <div id="homePage"
+        data-role="page"
+        data-theme="b"
+        data-title="Grocery Buddy: Home">
+        <div data-role="content">
+            Welcome to Grocery Buddy!
+            <div>
+                <img src="Images/GroceryBuddyLogo.png" alt="Grocery Buddy Logo" />
+            </div>
+        </div>
+        <div data-role="controlgroup">
+            <a href="#cartsPage"
+                data-role="button"
+                data-icon="arrow-r"
+                data-iconpos="right"
+                data-transition="flip">Carts</a>
+            <a href="#info"
+                data-role="button"
+                data-icon="arrow-r"
+                data-iconpos="right"
+                data-rel="dialog">Info</a>
+        </div>
+    </div>
+    <!-- / HOME SCREEN -->
+
+    <!-- CARTS SCREEN -->
+    <div id="cartsPage"
+        data-role="page"
+        data-theme="b"
+        data-title="Grocery Buddy: Carts">
+
+        <!-- STANDARD HEADER -->
+        <div data-role="header"
+            data-theme="b"
+            data-position="fixed">
+            <h1>Carts</h1>
+            <a href="#homePage"
+                data-icon="home"
+                data-iconpos="notext">Home</a>
+            <a href="#info"
+                data-icon="info"
+                data-iconpos="notext"
+                data-rel="dialog">Info</a>
+        </div>
+        <!-- /STANDARD HEADER -->
+
+        <div data-role="content">
+            <ul id="theCartList" data-bind="foreach: carts" data-role="listview" data-inset="true" data-theme="c" data-split-icon="delete">
+                <li>
+                    <a href="#" data-bind="click: $root.viewCartBegin">
+                        <img src="Images/ShoppingCart.PNG" />
+                        <strong data-bind="text: name, valueUpdate: 'afterkeydown'" contenteditable="true" required></strong>
+                        <!--<p class="ui-li-aside"><strong>4:48</strong>PM</p>-->
+                        <div class="ui-li-aside" data-bind="text: numberOfItems"></div>
+                    </a>
+                    <a href="#" data-bind="click: $root.removeCart" data-theme="d">
+                    </a>
+                </li>
+            </ul>
+            <a data-bind="click: addCartBegin"> 
+                <img src="Images/NewShoppingCart.PNG" />
+            </a>
+        </div>
+
+
+        <!-- STANDARD FOOTER -->
+        <div data-role="footer"
+            data-theme="b"
+            data-position="fixed"
+            data-id="vs_footer">
+            <div data-role="navbar">
+                <ul>
+                    <li><a href="#homePage"
+                        data-role="button"
+                        data-icon="home">Home</a></li>
+                    <li><a href="#cartsPage"
+                        data-role="button"
+                        data-icon="vs_cart">Carts</a></li>
+                    <li><a href="#config"
+                        data-role="button"
+                        data-icon="gear">Config</a></li>
+                </ul>
+            </div>
+        </div>
+        <!-- /STANDARD FOOTER -->
+
+    </div>
+    <!-- /CARTS SCREEN -->
+
+    <!-- ADD A CART -->
+    <div id="addCartPage"
+        data-role="page"
+        data-theme="b"
+        data-title="Add Cart">
+
+        <!-- STANDARD HEADER -->
+        <div data-role="header"
+            data-theme="b"
+            data-position="fixed">
+            <h1>Add Cart</h1>
+            <a
+                data-role="button"
+                data-rel="back"
+                data-icon="back"
+                data-iconpos="left"
+                class="ui-btn-left"
+                data-bind="click: navigateToCartsPage"
+                >Back
+            </a>
+            <a href="#info"
+                data-icon="info"
+                data-iconpos="notext"
+                data-rel="dialog">Info</a>
+        </div>
+        <!-- /STANDARD HEADER -->
+
+        <div data-role="content">
+            <div>
+                <label for="currentCartName">
+                    Cart name
+                </label>
+                <input id="currentCartName" placeholder="Enter cart name" type="text" required />
+<!--                <a data-role="button" data-inline="true" data-bind="click: addCartSave" data-icon="check" data-iconpos="left">Save</a>-->
+                <fieldset>
+                    <div><button type="submit" data-theme="c" data-bind="click: addCartCancel">Cancel</button></div>
+                    <div><button type="submit" data-theme="b" data-bind="click: addCartSave">Save</button></div>
+                </fieldset>
+            </div>
+        </div>
+
+        <!-- STANDARD FOOTER -->
+        <div data-role="footer"
+            data-position="fixed"
+            data-theme="b"
+            data-id="vs_footer">
+            <div data-role="navbar">
+                <ul>
+                    <li>
+                        <a data-role="button" data-inline="true" data-bind="click: addCartCancel" data-icon="check" data-iconpos="left">Cancel</a>
+                    </li>
+                    <li>
+                        <a data-role="button" data-inline="true" data-bind="click: addCartSave" data-icon="check" data-iconpos="left">Save</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- /STANDARD FOOTER -->
+
+    </div>
+    <!-- /ADD A CART -->
+
+    <!-- CART ITEMS SCREEN -->
+    <div id="cartItemsPage"
+        data-theme="b"
+        data-role="page"
+        data-title="Grocery Buddy: Cart Items">
+
+        <!-- STANDARD HEADER -->
+        <div data-role="header"
+            data-theme="b"
+            data-position="fixed">
+            <h1>Cart Items</h1>
+            <a
+                data-role="button"
+                data-rel="back"
+                data-icon="back"
+                data-iconpos="left"
+                class="ui-btn-left"
+                data-bind="click: navigateToCartsPage"
+                >Back
+            </a>
+            <a href="#info"
+                data-icon="info"
+                data-iconpos="notext"
+                data-rel="dialog">Info</a>
+        </div>
+        <!-- /STANDARD HEADER -->
+
+        <div id="cartAndItems" data-role="content" data-bind="with: selectedCart">
+
+            <strong data-bind="text: name, valueUpdate: 'afterkeydown'" contenteditable="true" required></strong>
+<!--            <div data-role="collapsible-set" data-bind="foreach: cartItems" data-theme="d" id="collapsibleItemList">
+                <div data-role="collapsible"><h3 data-bind="text: category"></h3>
+                    <p></p>
+                </div>
+            </div>-->
+            <ul id="cartItemsListView" data-bind="foreach: cartItems" data-role="listview" data-inset="true" data-theme="c" data-split-icon="delete">
+                <li>
+                    <a href="#">
+                        <strong data-bind="text: displayValue"></strong>
+                    </a>
+                    <a href="#" data-bind="click: $root.removeCartItem" data-theme="d">
+                    </a>
+                </li>
+            </ul>
+            <div data-bind="text: numberOfItemsDisplay"></div>
+            <a data-role="button" href="#addCartItemPage" data-icon="arrow-r" data-iconpos="right" data-transition="flip">New Item
+            </a>
+        </div>
+
+        <!-- STANDARD FOOTER -->
+        <div data-role="footer"
+            data-theme="b"
+            data-position="fixed"
+            data-id="vs_footer">
+            <div data-role="navbar">
+                <ul>
+                    <li><a href="#homePage"
+                        data-role="button"
+                        data-icon="home">Home</a></li>
+                    <li><a href="#cartsPage"
+                        data-role="button"
+                        data-icon="vs_cart">Carts</a></li>
+                    <li><a href="#config"
+                        data-role="button"
+                        data-icon="gear">Config</a></li>
+                </ul>
+            </div>
+        </div>
+        <!-- /STANDARD FOOTER -->
+
+    </div>
+    <!-- /CART ITEMS SCREEN -->
+
+    <!-- ADD A CART ITEM -->
+    <div id="addCartItemPage"
+        data-role="page"
+        data-theme="b"
+        data-title="Add Cart Item">
+
+        <!-- STANDARD HEADER -->
+        <div data-role="header"
+            data-theme="b"
+            data-position="fixed">
+            <h1>Add Cart Item</h1>
+            <a
+                data-role="button"
+                data-rel="back"
+                data-icon="back"
+                data-iconpos="left"
+                class="ui-btn-left"
+                data-bind="click: navigateToCartItemsPage"
+                >Back
+            </a>
+            <a href="#info"
+                data-icon="info"
+                data-iconpos="notext"
+                data-rel="dialog">Info</a>
+        </div>
+        <!-- /STANDARD HEADER -->
+
+        <div data-role="content">
+            <div>
+                <label for="sku">SKU:</label>
+                <input id="sku" type="text" placeholder="Enter (or scan) SKU" required />
+                <a data-bind="click: $root.startBarCodeScanning">
+                    <img alt="Click to start bar code scanner" class="auto-style1" src="Images/Barcode.PNG" />
+                </a>
+            </div>
+            <div>
+                <label for="itemName">Name:</label>
+                <input id="itemName" type="text" placeholder="Enter name" required />
+            <div>
+                <label for="itemCategory">Category:</label>
+                <select name="itemCategory" id="itemCategory" data-native-menu="true"
+                    data-bind="options: availableCategories, optionsText: 'name', optionsValue: 'value', optionsCaption: 'Choose...'" required>
+                </select>
+            </div>
+            <div>
+                <label for="itemNumberOfPieces"># of pieces:</label>
+                <input id="itemNumberOfPieces" type="number" required min="1" max="200" step="1" value="1" />
+            </div>
+            <div>
+                <label for="itemSize">Size of item:</label>
+                <input id="itemSize" type="number" required min="1" max="200" step="1" value="1" />
+            </div>
+            <div>
+                <label for="itemMeasurement">Measurement:</label>
+                <select name="itemMeasurement" id="itemMeasurement" data-native-menu="true"
+                    data-bind="options: availableMeasurements, optionsText: 'name', optionsValue: 'value', optionsCaption: 'Choose...'" required>
+                </select>
+            </div>
+        </div>
+
+        <!-- **CUSTOM** FOOTER -->
+        <div data-role="footer"
+            data-theme="b"
+            data-position="fixed"
+            data-id="vs_footer">
+            <div data-role="navbar">
+                <ul>
+                    <li>
+                        <a data-role="button" data-inline="true" data-bind="click: addCartItemSave" data-icon="check" data-iconpos="left">Save</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- /**CUSTOM** FOOTER -->
+
+    </div>
+    <!-- /ADD A CART ITEM -->
+
+    <!-- config -->
+    <div id="config"
+        data-role="page"
+        data-theme="b"
+        data-title="Config">
+
+        <!-- STANDARD HEADER -->
+        <div data-role="header"
+            data-theme="b"
+            data-position="fixed">
+            <h1>Config</h1>
+            <a href="#homePage"
+                data-icon="home"
+                data-iconpos="notext">Home</a>
+            <a href="#info"
+                data-icon="info"
+                data-iconpos="notext"
+                data-rel="dialog">Info</a>
+        </div>
+        <!-- /STANDARD HEADER -->
+
+        <div data-role="content">
+            Stuff like
+            <ul>
+                <li>Distance willing to travel</li>
+                <li>Unit of measure(?)</li>
+                <li>...</li>
+            </ul>
+        </div>
+
+        <!-- STANDARD FOOTER -->
+        <div data-role="footer"
+            data-theme="b"
+            data-position="fixed"
+            data-id="vs_footer">
+            <div data-role="navbar">
+                <ul>
+                    <li><a href="#homePage"
+                        data-role="button"
+                        data-icon="home">Home</a></li>
+                    <li><a href="#cartsPage"
+                        data-role="button"
+                        data-icon="vs_cart">Carts</a></li>
+                    <li><a href="#config"
+                        data-role="button"
+                        data-icon="gear">Config</a></li>
+                </ul>
+            </div>
+        </div>
+        <!-- /STANDARD FOOTER -->
+
+    </div>
+    <!-- /config -->
+
+    <!-- ABOUT / INFO PAGE -->
+    <div data-role="page"
+        data-theme="b"
+        id="info">
+        <div data-role="header"
+            data-theme="b">
+            <h1>About</h1>
+        </div>
+        <div data-role="content"
+            data-theme="b">
+            <p>Grocery Buddy is an application developed by the Solvera UltraHackathon Team comprised of: Darek Tomyn, Tom Yarnton and Jayper Sanchez</p>
+            <p>
+                The application attempts to show the following features:
+            </p>
+            <ul>
+                <li>jQuery mobile</li>
+                <li>Knockout.js</li>
+                <li>Storage</li>
+                <li>Offline</li>
+                <li>Web API</li>
+                <li>PhoneGap</li>
+                <li>Camera / barcode</li>
+            </ul>
+            <a href="#"
+                data-role="button"
+                data-inline="true"
+                data-rel="back">Cancel</a>
+            <a href="#homePage"
+                data-role="button"
+                data-inline="true">Home</a>
+        </div>
+    </div>
+    <!-- /ABOUT / INFO PAGE -->
+
+</body>
+</html>

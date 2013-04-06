@@ -1,0 +1,34 @@
+﻿body {
+    height:100%;
+    margin:0px;
+    padding:0px;
+    width:100%;
+}
+
+#homePage {
+	text-align: center;
+}
+
+
+#homePage .ui-controlgroup {
+	width: 60%;
+	margin: 0 auto;
+	margin-top: 20px;
+	max-width: 250px;
+}
+
+#homePage img {
+	width: 50%;
+	max-width: 200px;
+}
+
+.ui-icon-vs_cart {
+	background-image: url("../../Images/ShoppingCart_18.PNG");
+}
+
+.ui-icon-vs_config {
+	background-image: url("../../Images/Configuration_18.PNG");
+}
+
+.validationMessage { color: Red; }
+.customMessage { color: Orange; }        
