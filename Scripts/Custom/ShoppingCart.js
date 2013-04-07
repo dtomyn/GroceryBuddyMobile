@@ -1,6 +1,6 @@
 ﻿/// <reference path="_references.js" />
-//var dataLocation = 'http://grocerybuddydata.azurewebsites.net';
-var dataLocation = 'http://localhost:54328';
+var dataLocation = 'http://grocerybuddydata.azurewebsites.net';
+//var dataLocation = 'http://localhost:54328';
 
 function toProductKoObservable(product) {
     return {
