@@ -4,6 +4,7 @@ var dataLocation = 'http://grocerybuddydata.azurewebsites.net';
 
 function toProductKoObservable(product) {
     return {
+        Id: ko.observable(product.Id),
         Sku: ko.observable(product.Sku),
         Name: ko.observable(product.Name),
         Description: ko.observable(product.Description),
@@ -58,30 +59,6 @@ $(function () {
         $('#itemName').val('Something');
     });
 
-    //var Store = function() {
-    //    name
-    //    streetAddress
-    //    city
-    //    province
-    //    postalcode
-    //    telephone
-    //    lat
-    //    long
-    //}
-
-    //var Product = function() {
-    //    sku
-    //    name
-    //    ?? collection of ProductStorePrice
-    //}
-
-    //    var ProductStorePrice = function() {
-    //        sku
-    //        storeName
-    //        price
-    //        priceDate
-    //    }
-
     /// Class to represent a category
     var Category = function (value, name, icon) {
         var self = this;
@@ -109,15 +86,16 @@ $(function () {
     };
 
     /// Class to represent a product
-    var Product = function (sku, name, description, isDeleted) {
+    var Product = function (id, sku, name, description, isNew) {
         var self = this;
 
-// #region Properties
+        // #region Properties
+        Id: ko.observable(id);
         Sku: ko.observable(sku);
         Name: ko.observable(name);
         Description: ko.observable(description);
-        IsDeleted: ko.observable(isDeleted);
-// #endregion Properties
+        IsNew: ko.observable(isNew);
+        // #endregion Properties
 
         return self;
     };
@@ -330,6 +308,7 @@ $(function () {
             }
             , newProduct = function () {
                 this.products.push({
+                    Id: ko.observable(this.products().length + 1),
                     Sku: ko.observable(this.products().length + 1),
                     Name: ko.observable("New " + this.products().length),
                     Description: ko.observable("Description " + this.products().length),
