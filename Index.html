@@ -18,10 +18,10 @@
     <script src="Scripts/jquery-1.9.1.min.js"></script>
     <script src="Scripts/jquery.mobile-1.3.0.min.js"></script> 
     <script src="Scripts/knockout-2.2.1.js"></script> 
-    <script src="Scripts/jquery.validate.min.js"></script>
+    <!--<script src="Scripts/jquery.validate.min.js"></script>-->
     <script src="Scripts/modernizr-2.6.2.min.js"></script>
     <!-- TODO: tried to get the knockout validation extension to work but so far not successful -->
-    <script src="Scripts/knockout.validation.js"></script>
+    <!--<script src="Scripts/knockout.validation.js"></script>-->
     <script src="Scripts/Custom/Utils.js"></script>
 
     <!-- To make use of phone gap features simply add the below -->
@@ -33,14 +33,14 @@
     <!-- Demo also shows adding this too -->
     <!--<script src="childbrowser.js"></script>-->
     <!-- Finally... add our custom JavaScript -->
-    <script src="Scripts/Custom/ScanIt.js"></script>
+    <!--<script src="Scripts/Custom/ScanIt.js"></script>-->
 
     <link href="Content/Custom/AppStyles.css" rel="stylesheet" /> 
 
     <script src="Scripts/Custom/ShoppingCart.js"></script> 
 
     <style type="text/css">
-        .auto-style1 {
+        .barCodeImage {
             width: 61px;
             height: 45px;
         }
@@ -112,7 +112,6 @@
                 <img src="Images/NewShoppingCart.PNG" />
             </a>
         </div>
-
 
         <!-- STANDARD FOOTER -->
         <div data-role="footer"
@@ -228,13 +227,7 @@
         <!-- /STANDARD HEADER -->
 
         <div id="cartAndItems" data-role="content" data-bind="with: selectedCart">
-
-            <strong data-bind="text: name, valueUpdate: 'afterkeydown'" contenteditable="true" required></strong>
-<!--            <div data-role="collapsible-set" data-bind="foreach: cartItems" data-theme="d" id="collapsibleItemList">
-                <div data-role="collapsible"><h3 data-bind="text: category"></h3>
-                    <p></p>
-                </div>
-            </div>-->
+            <strong data-bind="text: name" contenteditable="true" required></strong>
             <ul id="cartItemsListView" data-bind="foreach: cartItems" data-role="listview" data-inset="true" data-theme="c" data-split-icon="delete">
                 <li>
                     <a href="#">
@@ -305,12 +298,13 @@
                 <label for="sku">SKU:</label>
                 <input id="sku" type="text" placeholder="Enter (or scan) SKU" required />
                 <a data-bind="click: $root.startBarCodeScanning">
-                    <img alt="Click to start bar code scanner" class="auto-style1" src="Images/Barcode.PNG" />
+                    <img alt="Click to start bar code scanner" class="barCodeImage" src="Images/Barcode.PNG" />
                 </a>
             </div>
             <div>
                 <label for="itemName">Name:</label>
                 <input id="itemName" type="text" placeholder="Enter name" required />
+            </div>
             <div>
                 <label for="itemCategory">Category:</label>
                 <select name="itemCategory" id="itemCategory" data-native-menu="true"
@@ -428,6 +422,7 @@
                 <li>PhoneGap</li>
                 <li>Camera / barcode</li>
             </ul>
+            # of products cached: <div data-bind="text: products().length"></div>
             <a href="#"
                 data-role="button"
                 data-inline="true"

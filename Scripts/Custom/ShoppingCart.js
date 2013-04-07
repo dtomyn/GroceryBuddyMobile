@@ -1,6 +1,15 @@
 ﻿/// <reference path="_references.js" />
-var dataLocation = 'http://grocerybuddydata.azurewebsites.net';
-//var dataLocation = 'http://localhost:54328';
+//var dataLocation = 'http://grocerybuddydata.azurewebsites.net';
+var dataLocation = 'http://localhost:54328';
+
+function toProductKoObservable(product) {
+    return {
+        Sku: ko.observable(product.Sku),
+        Name: ko.observable(product.Name),
+        Description: ko.observable(product.Description),
+        IsDeleted: ko.observable(product.IsDeleted)
+    };
+}
 
 $(function () {
 //    // setup all jquery ajax calls to use this error function by default (this can be overridden simply by specifying the error property as normal in the ajax call). 
@@ -43,56 +52,34 @@ $(function () {
 
     // TODO: find better event perhaps?
     $('#sku').on('change', function (e) {
-        alert('call service to get name, etc');
+        //alert('call service to get name, etc');
         $('#itemName').val('Something');
     });
 
 
     //var Store = function() {
-
     //    name
-
     //    streetAddress
-
     //    city
-
     //    province
-
     //    postalcode
-
     //    telephone
-
     //    lat
-
     //    long
-
     //}
 
- 
-
     //var Product = function() {
-
     //    sku
-
     //    name
-
-
-//    ?? collection of ProductStorePrice
-
-//}
+    //    ?? collection of ProductStorePrice
+    //}
 
     //    var ProductStorePrice = function() {
-
     //        sku
-
     //        storeName
-
     //        price
-
     //        priceDate
-
     //    }
-
 
     /// Class to represent a category
     var Category = function (value, name, icon) {
@@ -140,13 +127,9 @@ $(function () {
 
 // #region Properties
         /// Cart has a name...
-        self.name = ko.observable(name).extend({ minLength: 2, maxLength: 10 });
+        self.name = ko.observable(name); //.extend({ minLength: 2, maxLength: 10 });
         /// Cart has items...
         self.cartItems = ko.observableArray([]);
-        //TODO: reminder?? use this for validation .extend({ date: true });
-
-        //self.dirtyFlag = new ko.DirtyFlag([
-        //    self.name)];
 // #endregion Properties
 
 // #region Computed properties
@@ -166,11 +149,6 @@ $(function () {
         // Simply returns the number of items
         self.numberOfItems = ko.computed(function () {
             return self.cartItems().length;
-            //NOTE: the below shows how could have used a "foreach" method too... 
-            //note also that if using "destroy" method in Knockout will need to do something ehre
-            //var total = 0;
-            //$.each(self.cartItems(), function () { total += 1; })
-            //return total;
         });
 // #endregion Computed properties
 
@@ -194,22 +172,16 @@ $(function () {
 
 // #region Properties
         self.sku = ko.observable(sku);
-        self.name = ko.observable(name).extend({ minLength: 2, maxLength: 10 });
-        //self.name = ko.observable(name).extend({ required: true });
-        self.category = ko.observable(category).extend({ required: true });
-        self.numberOfPieces = ko.observable(numberOfPieces).extend({ min: 1 });
-        //.extend({ number: true });
-        //.extend({ digit: true });
-        self.size = ko.observable(size).extend({ min: 1 });
-        self.measurement = ko.observable(measurement).extend({ required: true });
+        self.name = ko.observable(name); //.extend({ minLength: 2, maxLength: 10 });
+        self.category = ko.observable(category); //.extend({ required: true });
+        self.numberOfPieces = ko.observable(numberOfPieces); //.extend({ min: 1 });
+        self.size = ko.observable(size); //.extend({ min: 1 });
+        self.measurement = ko.observable(measurement); //.extend({ required: true });
 // #endregion Properties
 
 // #region Computed properties
         self.displayValue = ko.computed(function () {
             return self.name() + ' (' + self.category() + ') ' + self.numberOfPieces() + ' x ' + self.size() + ' @ ' + self.measurement();
-            //var total = 0;
-            //$.each(self.cartItems(), function () { total += 1; })
-            //return total;
         });
 // #endregion Computed properties
 
@@ -269,14 +241,6 @@ $(function () {
             /// Saves a cart to the carts collection and then navigates back to the main carts page
             , addCartSave = function () {
                 var gc = new GroceryCart($('#currentCartName').val());
-                //TODO: need to figure out a way to get validation to work... I made a reference to knockout validation but not sure how to use properly yet
-                //gc.errors = ko.validation.group(gc);
-                //if (gc.errors().length == 0) {
-                //    alert('Thank you.');
-                //} else {
-                //    alert('Please check your submission.');
-                //    gc.errors.showAllMessages();
-                //}
                 carts.push(gc);
                 $('#currentCartName').val('');
                 navigateToCartsPage();
@@ -303,7 +267,6 @@ $(function () {
             /// Removes the currently selected cart from the collection after confirming that want to delete it
             , removeCartItem = function (cartItem) {
                 //TODO... better confirm needed!... look at split listview
-                //TODO... this does not work yet... must have syntax incorrect
                 if (confirm('Are you sure you want to remove this item?')) {
                     selectedCart().removeItem(cartItem);
                     $('#cartItemsListView').listview('refresh');
@@ -355,11 +318,16 @@ $(function () {
             }
 // #endregion NAVIGATION operations
             , startBarCodeScanning = function () {
-                scanner.scan();
+                alert('start scanner here...');
+                //scanner.scan();
             }
 
 // #region Product stuff
             , selectedProduct = ko.observable(null)
+            , numberOfProductsCached = function () {
+                return "2";
+                //return products.length;
+            }
             , newProduct = function () {
                 this.products.push({
                     Sku: ko.observable(this.products().length + 1),
@@ -368,49 +336,21 @@ $(function () {
                     IsNew: ko.observable(true)
                 });
             }
-            //url: "http://localhost:54328/",  http://grocerybuddydata.azurewebsites.net/api/Products",
             , getProducts = function () {
-                alert('making ajax call now');
-
                 $.ajax(
                     {
                         url: (dataLocation + "/api/Products"),
                         contentType: "text/json",
                         type: "GET",
                         success: function (data) {
-                            alert('success. products before load: ' + shoppingCartViewModel.products().length + ' data to load ' + data.length);
                             $.each(data, function (index) {
                                 shoppingCartViewModel.products.push(toProductKoObservable(data[index]));
                             });
-                            alert('success. products after load: ' + shoppingCartViewModel.products().length + ' data to load ' + data.length);
                         },
                         error: function(xhr, status, error) {
-                            debugger;
-                            alert("ERROR");
-                            var err = eval("(" + xhr.responseText + ")");
-                            // Display the specific error raised by the server (e.g. not a
-                            //   valid value for Int32, or attempted to divide by zero).
-                            alert(err.Message);
+//                            debugger;
                         }
                     });
-
-                //alert('making ajax call');
-                //$.ajax(
-                //{
-                //    url: "http://localhost:54328/api/Products",
-                //    contentType: "text/json",
-                //    type: "GET",
-                //    success: function (data) {
-                //        //$.each(data, function (index) {
-                //        //    viewModel.products.push(toKoObserable(data[index]));
-                //        //});
-                //        alert('Found ' + products.length() + ' products');
-                //        //ko.applyBindings(viewModel);
-                //    },
-                //    error: function (data) {
-                //        alert("ERROR " + data.message);
-                //    }
-                //});
             }
 //#endregion Product stuff
 
@@ -430,6 +370,7 @@ $(function () {
             , availableCategories: availableCategories
             , availableMeasurements: availableMeasurements
             , products: products
+            , numberOfProductsCached: numberOfProductsCached
 
             , getCarts: getCarts
             , getCategories: getCategories
@@ -462,33 +403,13 @@ $(function () {
 
     var shoppingCartViewModel = new ShoppingCartViewModel();
 
-    alert('about to call getProducts');
     shoppingCartViewModel.getProducts();
 
-    ko.validation.rules.pattern.message = 'Invalid.';
-
-    shoppingCartViewModel.errors = ko.validation.group(shoppingCartViewModel);
-
-    ko.validation.configure({
-        registerExtenders: true,
-        messagesOnModified: true,
-        insertMessages: true,
-        parseInputAttributes: true,
-        messageTemplate: null
-    });
+    //ko.validation.rules.pattern.message = 'Invalid.';
 
     ko.applyBindings(shoppingCartViewModel);
 
     $.mobile.defaultPageTransition = "slide";
-
-    function toProductKoObservable(product) {
-        return {
-            Sku: ko.observable(product.Sku),
-            Name: ko.observable(product.Name),
-            Description: ko.observable(product.Description),
-            IsDeleted: ko.observable(product.IsDeleted)
-        };
-    }
 });
 
 //var viewSaveID;
