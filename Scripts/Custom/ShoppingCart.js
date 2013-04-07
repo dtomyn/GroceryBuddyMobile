@@ -375,7 +375,7 @@ $(function () {
                 $.ajax(
                     {
                         url: (dataLocation + "/api/Products"),
-                        contentType: "text/jsonp",
+                        contentType: "text/json",
                         type: "GET",
                         success: function (data) {
                             alert('success. products before load: ' + shoppingCartViewModel.products().length + ' data to load ' + data.length);
