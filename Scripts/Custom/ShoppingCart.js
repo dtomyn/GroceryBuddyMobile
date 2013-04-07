@@ -11,32 +11,34 @@ function toProductKoObservable(product) {
     };
 }
 
+function jsonp(url, callback) {
+    // create a unique id
+    var id = "_" + (new Date()).getTime();
+
+    // create a global callback handler
+    window[id] = function (result) {
+        // forward the call to specified handler                                       
+        if (callback)
+            callback(result);
+
+        // clean up: remove script and id
+        var sc = document.getElementById(id);
+        sc.parentNode.removeChild(sc);
+        window[id] = null;
+    }
+
+    url = url.replace("callback=?", "callback=" + id);
+
+    // create script tag that loads the 'JSONP script' 
+    // and executes it calling window[id] function                
+    var script = document.createElement("script");
+    script.setAttribute("id", id);
+    script.setAttribute("src", url);
+    script.setAttribute("type", "text/javascript");
+    document.body.appendChild(script);
+}
+
 $(function () {
-//    // setup all jquery ajax calls to use this error function by default (this can be overridden simply by specifying the error property as normal in the ajax call). 
-//    $.ajaxSetup({
-//        // put your favorite error function here: 
-//        error:
-//            function (XMLHttpRequest, textStatus, errorThrown) {
-//                // release any existing ui blocks 
-//                $.unblockUI;
-//                var errorObj = JSON.parse(XMLHttpRequest.responseText);
-//                // send the user to the system error page if system error, otherwise popup the user error div 
-//                if (!errorObj.Success) {
-//                    if (errorObj.ErrorType != "system") {
-//                        $('#UserError').html(errorObj.Message);
-//                        $.blockUI({
-//                            message: $('#UserErrorWrapper'),
-//                            css: { width: '400px', height: '300px', overflow: 'scroll' }
-//                        });
-//                    }
-//                    else {
-//                        window.location = errorObj.ErrorPageUrl;
-//                    }
-//                }
-//            }
-//    });
-
-
     //NOTE: The below 2 "focus" functions could have been put in the applicable "navigate" methods... done below
     //just to show an alternative method
 
@@ -55,7 +57,6 @@ $(function () {
         //alert('call service to get name, etc');
         $('#itemName').val('Something');
     });
-
 
     //var Store = function() {
     //    name
@@ -258,7 +259,7 @@ $(function () {
             /// Saves a cart items to the currently selected cart
             , addCartItemSave = function () {
                 //TODO: better way to do this is to have an observable item on this page... for now using standard jQuery to get values
-                var ci = new CartItem(123, $('#itemName').val(), $('#itemCategory').val(), $('#itemNumberOfPieces').val(), $('#itemSize').val(), $('#itemMeasurement').val());
+                var ci = new CartItem($('#sku').val(), $('#itemName').val(), $('#itemCategory').val(), $('#itemNumberOfPieces').val(), $('#itemSize').val(), $('#itemMeasurement').val());
                 if (selectedCart() != null) {
                     selectedCart().addItem(ci);
                 }
@@ -325,8 +326,7 @@ $(function () {
 // #region Product stuff
             , selectedProduct = ko.observable(null)
             , numberOfProductsCached = function () {
-                return "2";
-                //return products.length;
+                return this.products().length;
             }
             , newProduct = function () {
                 this.products.push({
@@ -337,20 +337,29 @@ $(function () {
                 });
             }
             , getProducts = function () {
-                $.ajax(
-                    {
-                        url: (dataLocation + "/api/Products"),
-                        contentType: "text/json",
-                        type: "GET",
-                        success: function (data) {
-                            $.each(data, function (index) {
-                                shoppingCartViewModel.products.push(toProductKoObservable(data[index]));
-                            });
-                        },
-                        error: function(xhr, status, error) {
-//                            debugger;
-                        }
-                    });
+                jsonp((dataLocation + "/api/Products?callback=?"),
+                       function (data) {
+                           //viewModel.items([]);
+                           shoppingCartViewModel.products([]);
+                           //shoppingCartViewModel.products.removeAll();
+                           $.each(data, function (index) {
+                               shoppingCartViewModel.products.push(toProductKoObservable(data[index]));
+                           });
+                       });
+//                $.ajax(
+//                    {
+//                        url: (dataLocation + "/api/Products"),
+//                        contentType: "text/json",
+//                        type: "GET",
+//                        success: function (data) {
+//                            $.each(data, function (index) {
+//                                shoppingCartViewModel.products.push(toProductKoObservable(data[index]));
+//                            });
+//                        },
+//                        error: function(xhr, status, error) {
+////                            debugger;
+//                        }
+//                    });
             }
 //#endregion Product stuff
 
