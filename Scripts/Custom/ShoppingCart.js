@@ -55,8 +55,21 @@ $(function () {
 
     // TODO: find better event perhaps?
     $('#sku').on('change', function (e) {
-        //alert('call service to get name, etc');
-        $('#itemName').val('Something');
+        log('sku change started');
+        var skuToLookup = $(this).val();
+        shoppingCartViewModel.lookupProduct(skuToLookup);
+        log('sku change done.');
+    });
+
+    //// $("#one").bind("paste cut keydown",function(e) {
+    //$("#sku").bind("paste cut keydown",function(e) {
+    //});
+
+    $("#sku").on("input", null, null, function (e) {
+        log('sku input event fired... looking up sku');
+        var skuToLookup = $(this).val();
+        shoppingCartViewModel.lookupProduct(skuToLookup);
+        log('sku input done.');
     });
 
     /// Class to represent a category
@@ -171,13 +184,28 @@ $(function () {
     var ShoppingCartViewModel = function () {
         var self = this;
 
+        var lookupProduct = function (sku) {
+            log('lookupProduct started. sku to lookup is ' + sku);
+            var match = ko.utils.arrayFirst(products(), function (item) {
+                log('analyzing ' + item.Sku());
+                return item.Sku() == sku;
+            });
+            if (match != null) {
+                log('match found!');
+                $('#itemName').val(match.Name());
+            } else {
+                log('match NOT found');
+            }
+            log('lookupProduct done.');
+        };
+
         var localSave = function (data, key) {
             if (GB_foundStorage != undefined && GB_foundStorage != null) {
-                log('localSave is saving...');
+                log('localSave started...');
                 try {
                     var d = ko.toJSON(data);
                     GB_foundStorage.setItem(key, d);
-                    log('localSave is done.');
+                    log('localSave done.');
                 } catch (ex) {
                     alert('error while storing data to localStorage');
                 }
@@ -186,7 +214,7 @@ $(function () {
 
         var localGet = function (key) {
             if (GB_foundStorage != undefined && GB_foundStorage != null) {
-                log('localGet is geting...');
+                log('localGet started...');
                 var d = localStorage.getItem(key);
                 if (d == null || d == "undefined" || d == undefined) {
                     log('localGet is done. Data not found');
@@ -194,7 +222,7 @@ $(function () {
                 } else {
                     log('found data, now parsing...');
                     data = JSON.parse(d);
-                    log('localGet is done. Data found and parsed');
+                    log('localGet done. Data found and parsed');
                     return data;
                 }
             } else {
@@ -453,6 +481,8 @@ $(function () {
             , navigateToAddCartPage: navigateToAddCartPage
             , navigateToCartItemsPage: navigateToCartItemsPage
             , navigateToAddCartItemPage: navigateToAddCartItemPage
+
+            , lookupProduct: lookupProduct
         };
     };
 
