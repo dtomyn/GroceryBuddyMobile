@@ -1,6 +1,21 @@
 ﻿/// <reference path="_references.js" />
-var dataLocation = 'http://grocerybuddydata.azurewebsites.net';
-//var dataLocation = 'http://localhost:54328';
+
+//#region CONSTANTS
+(function () {
+    GB_BASE_DATA_LOCATION = 'http://grocerybuddydata.azurewebsites.net';
+    //var GB_BASE_DATA_LOCATION = 'http://localhost:54328';
+
+    //application stores all carts to localStorage (if available)... this is the storage key
+    GB_STORAGEKEY_CARTS = 'MyCarts';
+
+    //each page has a "constant"
+    GB_PAGE_CARTS_LIST = '#cartsPage';
+    GB_PAGE_ADD_CART = '#addCartPage';
+    GB_PAGE_CART_ITEMS = '#cartItemsPage';
+    GB_PAGE_ADD_CART_ITEM = '#addCartItemPage';
+})();
+//#endregion CONSTANTS
+
 
 function toProductKoObservable(product) {
     return {
@@ -12,46 +27,31 @@ function toProductKoObservable(product) {
     };
 }
 
-function jsonp(url, callback) {
-    // create a unique id
-    var id = "_" + (new Date()).getTime();
-
-    // create a global callback handler
-    window[id] = function (result) {
-        // forward the call to specified handler                                       
-        if (callback)
-            callback(result);
-
-        // clean up: remove script and id
-        var sc = document.getElementById(id);
-        sc.parentNode.removeChild(sc);
-        window[id] = null;
-    }
-
-    url = url.replace("callback=?", "callback=" + id);
-
-    // create script tag that loads the 'JSONP script' 
-    // and executes it calling window[id] function                
-    var script = document.createElement("script");
-    script.setAttribute("id", id);
-    script.setAttribute("src", url);
-    script.setAttribute("type", "text/javascript");
-    document.body.appendChild(script);
-}
 
 $(function () {
+    log('****Beginning GroceryBuddy application...');
+
+    if ('localStorage' in window && window['localStorage'] !== null) {
+        log('localStorage found!');
+        var GB_foundStorage = window.localStorage;
+    } else {
+        alert('Sorry, local storage not supported. Any changes made will be lost once application closed');
+    }
+
+//#region FOCUS METHODS
     //NOTE: The below 2 "focus" functions could have been put in the applicable "navigate" methods... done below
     //just to show an alternative method
 
     /// When the add cart page shows, set focus to the name field
-    $("#addCartPage").on("pageshow", function (e) {
+    $(GB_PAGE_ADD_CART).on("pageshow", function (e) {
         $('#currentCartName').focus();
     });
 
     // When the add item page shows, set focus on the name field
-    $("#addCartItemPage").on("pageshow", function (e) {
-        $('#itemName').focus();
+    $(GB_PAGE_ADD_CART_ITEM).on("pageshow", function (e) {
+        $('#sku').focus();
     });
+//#endregion FOCUS METHODS
 
     // TODO: find better event perhaps?
     $('#sku').on('change', function (e) {
@@ -89,13 +89,13 @@ $(function () {
     var Product = function (id, sku, name, description, isNew) {
         var self = this;
 
-        // #region Properties
-        Id: ko.observable(id);
+// #region Properties
+        Id: ko.observable(id); //TODO... no reason for any of these to be observable I don't think...
         Sku: ko.observable(sku);
         Name: ko.observable(name);
         Description: ko.observable(description);
-        IsNew: ko.observable(isNew);
-        // #endregion Properties
+        IsNew: ko.observable(isNew); //TODO: remove this later... not applicable
+// #endregion Properties
 
         return self;
     };
@@ -106,7 +106,7 @@ $(function () {
 
 // #region Properties
         /// Cart has a name...
-        self.name = ko.observable(name); //.extend({ minLength: 2, maxLength: 10 });
+        self.name = ko.observable(name);
         /// Cart has items...
         self.cartItems = ko.observableArray([]);
 // #endregion Properties
@@ -137,7 +137,6 @@ $(function () {
         };
 
         self.removeItem = function (item) {
-            //self.cartItems.destroy(item); //This is probably the better way, but causes complication with count
             self.cartItems.remove(item);
         };
 // #endregion Operations
@@ -146,16 +145,17 @@ $(function () {
     };
 
     /// Class to represent an item in a cart
-    var CartItem = function (sku, name, category, numberOfPieces, size, measurement) {
+    var CartItem = function (sku, name, category, numberOfPieces, size, measurement, manualPrice) {
         var self = this;
 
 // #region Properties
         self.sku = ko.observable(sku);
-        self.name = ko.observable(name); //.extend({ minLength: 2, maxLength: 10 });
-        self.category = ko.observable(category); //.extend({ required: true });
-        self.numberOfPieces = ko.observable(numberOfPieces); //.extend({ min: 1 });
-        self.size = ko.observable(size); //.extend({ min: 1 });
-        self.measurement = ko.observable(measurement); //.extend({ required: true });
+        self.name = ko.observable(name);
+        self.category = ko.observable(category);
+        self.numberOfPieces = ko.observable(numberOfPieces);
+        self.size = ko.observable(size);
+        self.measurement = ko.observable(measurement);
+        self.manualPrice = ko.observable(manualPrice);
 // #endregion Properties
 
 // #region Computed properties
@@ -170,6 +170,37 @@ $(function () {
     /// Overall view model for the application
     var ShoppingCartViewModel = function () {
         var self = this;
+
+        var localSave = function (data, key) {
+            if (GB_foundStorage != undefined && GB_foundStorage != null) {
+                log('localSave is saving...');
+                try {
+                    var d = ko.toJSON(data);
+                    GB_foundStorage.setItem(key, d);
+                    log('localSave is done.');
+                } catch (ex) {
+                    alert('error while storing data to localStorage');
+                }
+            }
+        };
+
+        var localGet = function (key) {
+            if (GB_foundStorage != undefined && GB_foundStorage != null) {
+                log('localGet is geting...');
+                var d = localStorage.getItem(key);
+                if (d == null || d == "undefined" || d == undefined) {
+                    log('localGet is done. Data not found');
+                    return null;
+                } else {
+                    log('found data, now parsing...');
+                    data = JSON.parse(d);
+                    log('localGet is done. Data found and parsed');
+                    return data;
+                }
+            } else {
+                return null;
+            }
+        };
 
         var
 // #region Properties
@@ -186,114 +217,158 @@ $(function () {
 // #endregion Properties
 
 // #region Operations
-            /// Loads up carts collection with a couple of sample grocery carts
+            /// Determines if there are any shopping carts stored locally and if so loads them into our collection
             , getCarts = function () {
-                carts = ko.observableArray([]);
-                carts.push(new GroceryCart("Shopping Cart 1"));
-                carts.push(new GroceryCart("Shopping Cart 2"));
+                log('getCarts started...');
+                var foundCartData = localGet(GB_STORAGEKEY_CARTS);
+                if (foundCartData != null) {
+                    $.each(foundCartData, function (index) {
+                        var g = new GroceryCart(foundCartData[index].name);
+                        $.each(foundCartData[index].cartItems, function (innerIndex) {
+                            g.addItem(foundCartData[index].cartItems[innerIndex]);
+                        });
+                        carts.push(g);
+                    });
+                } else {
+                    carts.push(new GroceryCart("Demo cart 1"));
+                    carts.push(new GroceryCart("Demo cart 2"));
+                }
+                log('getCarts done.');
             }
             /// Loads up availableCategories collection with a few category types
             , getCategories = function () {
+                log('getCategories started...');
                 availableCategories = ko.observableArray([]);
                 availableCategories.push(new Category("Produce", "Produce", "TODO"));
                 availableCategories.push(new Category("Dairy", "Dairy", "TODO"));
                 availableCategories.push(new Category("Junk Food", "Junk Food", "TODO"));
+                log('getCategories done.');
             }
             /// Loads up availableMeasurements collection with a few measurement types
             , getMeasurements = function () {
+                log('getMeasurements started...');
                 availableMeasurements = ko.observableArray([]);
                 availableMeasurements.push(new Measurement("Grams", "Grams", "TODO"));
                 availableMeasurements.push(new Measurement("KG", "KG", "TODO"));
                 availableMeasurements.push(new Measurement("ML", "ML", "TODO"));
                 availableMeasurements.push(new Measurement("L", "L", "TODO"));
+                log('getMeasurements done.');
             }
             /// Called when want to start adding a new cart
             , addCartBegin = function () {
+                log('addCartBegin started...');
                 $('#currentCartName').val('');
                 navigateToAddCartPage();
+                log('addCartBegin done.');
             }
             /// Cancels the save cart operation and navigates back to the main carts page
             , addCartCancel = function () {
+                log('addCartCancel started...');
                 $('#currentCartName').val('');
                 navigateToCartsPage();
+                log('addCartCancel done.');
             }
             /// Saves a cart to the carts collection and then navigates back to the main carts page
             , addCartSave = function () {
+                log('addCartSave started...');
                 var gc = new GroceryCart($('#currentCartName').val());
                 carts.push(gc);
+                saveAllCarts();
                 $('#currentCartName').val('');
                 navigateToCartsPage();
+                log('addCartSave done.');
             }
 
             /// Called when want to start adding a new item into a cart
             , addCartItemBegin = function () {
+                log('addCartItemBegin started...');
                 $('#itemName').val('');
                 $('#itemCategory').val('');
                 $('#itemNumberOfPieces').val('');
                 $('#itemSize').val('');
                 $('#itemMeasurement').val('');
                 navigateToAddCartItemPage();
+                log('addCartItemBegin done.');
             }
             /// Saves a cart items to the currently selected cart
             , addCartItemSave = function () {
+                log('addCartItemSave started...');
                 //TODO: better way to do this is to have an observable item on this page... for now using standard jQuery to get values
-                var ci = new CartItem($('#sku').val(), $('#itemName').val(), $('#itemCategory').val(), $('#itemNumberOfPieces').val(), $('#itemSize').val(), $('#itemMeasurement').val());
+                var ci = new CartItem(
+                    $('#sku').val()
+                    , $('#itemName').val()
+                    , $('#itemCategory').val()
+                    , $('#itemNumberOfPieces').val()
+                    , $('#itemSize').val()
+                    , $('#itemMeasurement').val()
+                    , 10
+                    );
                 if (selectedCart() != null) {
                     selectedCart().addItem(ci);
+                    saveAllCarts();
                 }
                 navigateToCartItemsPage();
+                log('addCartItemSave done.');
             }
-            /// Removes the currently selected cart from the collection after confirming that want to delete it
+            /// Removes the currently selected cart from the collection after confirming that want to delete it 
             , removeCartItem = function (cartItem) {
+                log('removeCartItem started...');
                 //TODO... better confirm needed!... look at split listview
                 if (confirm('Are you sure you want to remove this item?')) {
                     selectedCart().removeItem(cartItem);
                     $('#cartItemsListView').listview('refresh');
+                    saveAllCarts();
                 }
+                log('removeCartItem done.');
             }
 
             /// Removes the currently selected cart from the collection after confirming that want to delete it
             , removeCart = function (cart) {
+                log('removeCart started...');
                 //TODO... better confirm needed!... look at split listview
                 if (confirm('Are you sure you want to remove the following cart: ' + cart.name() + ' that currently has ' + cart.numberOfItems() + ' number of items?')) {
                     //carts.destroy(cart); //This is probably the better way, but causes complication with count
                     carts.remove(cart);
                     $('#theCartList').listview("refresh");
+                    saveAllCarts();
                 }
+                log('removeCart done.');
             }
             /// Shows the contents of the cart
             , viewCartBegin = function (cart) {
+                log('viewCartBegin started...');
                 selectedCart(cart);
                 navigateToCartItemsPage();
+                log('viewCartBegin done.');
             }
 
 // #region NAVIGATION operations
             ///Navigates to the "cartsPage". Wrapped to ensure jQuery mobile "redraws" screen correctly
             , navigateToCartsPage = function () {
-                $.mobile.changePage("#cartsPage");
-                $('#cartsPage').trigger('pagecreate');
+                $.mobile.changePage(GB_PAGE_CARTS_LIST);
+                $(GB_PAGE_CARTS_LIST).trigger('pagecreate');
                 $('#theCartList').listview('refresh');
             }
 
             ///Navigates to the "addCartPage". Wrapped to ensure jQuery mobile "redraws" screen correctly
             , navigateToAddCartPage = function () {
-                $.mobile.changePage("#addCartPage");
-                $('#addCartPage').trigger('pagecreate');
+                $.mobile.changePage(GB_PAGE_ADD_CART);
+                $(GB_PAGE_ADD_CART).trigger('pagecreate');
             }
 
             ///Navigates to the "cartItemsPage". Wrapped to ensure jQuery mobile "redraws" screen correctly
             , navigateToCartItemsPage = function () {
-                $.mobile.changePage("#cartItemsPage");
+                $.mobile.changePage(GB_PAGE_CART_ITEMS);
                 //clear out previous values...
 
-                $('#cartItemsPage').trigger('pagecreate');
+                $(GB_PAGE_CART_ITEMS).trigger('pagecreate');
                 $('#cartItemsListView').listview('refresh');
             }
 
             ///Navigates to the "addCartItemPage". Wrapped to ensure jQuery mobile "redraws" screen correctly
             , navigateToAddCartItemPage = function () {
-                $.mobile.changePage("#addCartItemPage");
-                $('#addCartItemPage').trigger('pagecreate');
+                $.mobile.changePage(GB_PAGE_ADD_CART_ITEM);
+                $(GB_PAGE_ADD_CART_ITEM).trigger('pagecreate');
             }
 // #endregion NAVIGATION operations
             , startBarCodeScanning = function () {
@@ -316,36 +391,28 @@ $(function () {
                 });
             }
             , getProducts = function () {
-                jsonp((dataLocation + "/api/Products?callback=?"),
+                log('getProducts started... async call began');
+                executeJSONPCall((GB_BASE_DATA_LOCATION + "/api/Products?callback=?"),
                        function (data) {
+                           log('getProducts async completed, now mapping products...');
                            //viewModel.items([]);
                            shoppingCartViewModel.products([]);
                            //shoppingCartViewModel.products.removeAll();
                            $.each(data, function (index) {
                                shoppingCartViewModel.products.push(toProductKoObservable(data[index]));
                            });
+                           log('getProducts asynch mapping done.');
                        });
-//                $.ajax(
-//                    {
-//                        url: (dataLocation + "/api/Products"),
-//                        contentType: "text/json",
-//                        type: "GET",
-//                        success: function (data) {
-//                            $.each(data, function (index) {
-//                                shoppingCartViewModel.products.push(toProductKoObservable(data[index]));
-//                            });
-//                        },
-//                        error: function(xhr, status, error) {
-////                            debugger;
-//                        }
-//                    });
+            }
+            , saveAllCarts = function () {
+                 localSave(carts, GB_STORAGEKEY_CARTS);
             }
 //#endregion Product stuff
 
 // #endregion Operations
         ;
 
-        /// Make the call to initialize the carts
+        /// Make the call to initialize the cart s
         getCarts();
         /// Make the call to initialize the categories
         getCategories();

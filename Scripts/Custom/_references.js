@@ -7,3 +7,6 @@
 /// <reference path="../knockout.validation.js" />
 /// <reference path="Utils.js" />
 /// <reference path="ScanIt.js" />
+/// <reference path="../consolelog.js" />
+/// <reference path="../consolelog.detailprint.js" />
+

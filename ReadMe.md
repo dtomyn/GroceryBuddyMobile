@@ -44,3 +44,5 @@ Nice to haves...
 - synching up data to remote location... but then would need to authenticate!!
 - cleanup images and flow
 **********************
+
+consolelog.js files from https://github.com/cpatik/console.log-wrapper

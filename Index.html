@@ -4,40 +4,49 @@
     <meta charset="utf-8" />
     <title>Grocery Buddy</title>
 
-    <meta name="format-detection" content="telephone=no" />
-    <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, height=device-height, target-densitydpi=device-dpi" />
-
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-    <meta name="format-detection" content="telephone=no">
+    <!-- See: http://developer.apple.com/library/safari/#documentation/AppleApplications/Reference/SafariHTMLRef/Articles/MetaTags.html -->
     
+    <!-- By default, Safari on iOS detects any string formatted like a phone number and makes it a link that calls the number. Specifying telephone=no disables this feature -->
+    <meta name="format-detection" content="telephone=no" />
+    <!-- 
+        Use the viewport meta key to improve the presentation of your web content on iOS. Typically, you use the viewport meta tag to set the width and initial scale of the viewport.
+    If you are designing a Safari on iOS-specific web application, you should set the width to the width of the device.
+    -->
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+
+    <!-- Sets whether a web application runs in full-screen mode -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <!-- Sets the style of the status bar for a web application -->
+    <!-- NOTE: the below only takes affect if it is entered after the above -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    
+    <!-- Begin API CSS files -->
     <link href="Content/jquery.mobile.custom.min.css" rel="stylesheet" />
     <link href="Content/jquery.mobile.custom.structure.min.css" rel="stylesheet" />
     <link href="Content/jquery.mobile.custom.theme.min.css" rel="stylesheet" />
+    <!-- End API CSS files -->
 
+    <!-- Begin API JavaScript files -->
     <script src="Scripts/jquery-1.9.1.min.js"></script>
     <script src="Scripts/jquery.mobile-1.3.0.min.js"></script> 
     <script src="Scripts/knockout-2.2.1.js"></script> 
-    <!--<script src="Scripts/jquery.validate.min.js"></script>-->
     <script src="Scripts/modernizr-2.6.2.min.js"></script>
-    <!-- TODO: tried to get the knockout validation extension to work but so far not successful -->
-    <!--<script src="Scripts/knockout.validation.js"></script>-->
-    <script src="Scripts/Custom/Utils.js"></script>
-
-    <!-- To make use of phone gap features simply add the below -->
-    <!-- <script src="phonegap.js"></script> -->
-    <!-- ...or is it the below? I think it is this one... -->
-    <!-- <script src="cordova.js"></script> -->
-    <!-- The below is for the barcode scanner -->
-    <!-- <script src="barcodescanner.js"></script> -->
-    <!-- Demo also shows adding this too -->
+    <script src="Scripts/consolelog.min.js"></script>
+    <script src="Scripts/consolelog.detailprint.min.js"></script>
+    <!--<script src="cordova.js"></script>-->
+    <!--<script src="barcodescanner.js"></script>-->
     <!--<script src="childbrowser.js"></script>-->
-    <!-- Finally... add our custom JavaScript -->
-    <!--<script src="Scripts/Custom/ScanIt.js"></script>-->
+    <!-- End API JavaScript files -->
 
+    <!-- Begin Custom CSS files -->
     <link href="Content/Custom/AppStyles.css" rel="stylesheet" /> 
+    <!-- End Custom CSS files -->
 
+    <!-- Begin Custom JavaScript files -->
+    <script src="Scripts/Custom/Utils.js"></script>
+    <!--<script src="Scripts/Custom/ScanIt.js"></script>-->
     <script src="Scripts/Custom/ShoppingCart.js"></script> 
+    <!-- End Custom JavaScript files -->
 
     <style type="text/css">
         .barCodeImage {
@@ -238,7 +247,7 @@
                 </li>
             </ul>
             <div data-bind="text: numberOfItemsDisplay"></div>
-            <a data-role="button" href="#addCartItemPage" data-icon="arrow-r" data-iconpos="right" data-transition="flip">New Item
+            <a data-role="button" data-bind="click: $root.addCartItemBegin" data-icon="arrow-r" data-iconpos="right" data-transition="flip">New Item
             </a>
         </div>
 
@@ -409,7 +418,10 @@
         </div>
         <div data-role="content"
             data-theme="b">
-            <p>Grocery Buddy is an application developed by the Solvera UltraHackathon Team comprised of: Darek Tomyn, Tom Yarnton and Jayper Sanchez</p>
+            <p>
+                GroceryBuddy is an application developed by Darek Tomyn for the Solvera UltraHackathon.
+                <small>Other idea contributors were Tom Yarnton and Jayper Sanchez.</small>
+            </p>
             <p>
                 The application attempts to show the following features:
             </p>
