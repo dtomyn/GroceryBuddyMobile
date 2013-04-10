@@ -3,7 +3,7 @@
 //#region CONSTANTS
 (function () {
     GB_BASE_DATA_LOCATION = 'http://grocerybuddydata.azurewebsites.net';
-    //var GB_BASE_DATA_LOCATION = 'http://localhost:54328';
+    //GB_BASE_DATA_LOCATION = 'http://localhost:54328';
 
     //application stores all carts to localStorage (if available)... this is the storage key
     GB_STORAGEKEY_CARTS = 'MyCarts';
@@ -60,10 +60,6 @@ $(function () {
         shoppingCartViewModel.lookupProduct(skuToLookup);
         log('sku change done.');
     });
-
-    //// $("#one").bind("paste cut keydown",function(e) {
-    //$("#sku").bind("paste cut keydown",function(e) {
-    //});
 
     $("#sku").on("input", null, null, function (e) {
         log('sku input event fired... looking up sku');
@@ -282,6 +278,36 @@ $(function () {
                 availableMeasurements.push(new Measurement("L", "L", "TODO"));
                 log('getMeasurements done.');
             }
+// #region NAVIGATION operations
+            ///Navigates to the "cartsPage". Wrapped to ensure jQuery mobile "redraws" screen correctly
+            , navigateToCartsPage = function () {
+                $.mobile.changePage(GB_PAGE_CARTS_LIST);
+                $(GB_PAGE_CARTS_LIST).trigger('pagecreate');
+                $('#theCartList').listview('refresh');
+            }
+
+            ///Navigates to the "addCartPage". Wrapped to ensure jQuery mobile "redraws" screen correctly
+            , navigateToAddCartPage = function () {
+                $.mobile.changePage(GB_PAGE_ADD_CART);
+                $(GB_PAGE_ADD_CART).trigger('pagecreate');
+            }
+
+            ///Navigates to the "cartItemsPage". Wrapped to ensure jQuery mobile "redraws" screen correctly
+            , navigateToCartItemsPage = function () {
+                $.mobile.changePage(GB_PAGE_CART_ITEMS);
+                //clear out previous values...
+
+                $(GB_PAGE_CART_ITEMS).trigger('pagecreate');
+                $('#cartItemsListView').listview('refresh');
+            }
+
+            ///Navigates to the "addCartItemPage". Wrapped to ensure jQuery mobile "redraws" screen correctly
+            , navigateToAddCartItemPage = function () {
+                $.mobile.changePage(GB_PAGE_ADD_CART_ITEM);
+                $(GB_PAGE_ADD_CART_ITEM).trigger('pagecreate');
+            }
+// #endregion NAVIGATION operations
+
             /// Called when want to start adding a new cart
             , addCartBegin = function () {
                 log('addCartBegin started...');
@@ -306,10 +332,30 @@ $(function () {
                 navigateToCartsPage();
                 log('addCartSave done.');
             }
+            /// Removes the currently selected cart from the collection after confirming that want to delete it
+            , removeCart = function (cart) {
+                log('removeCart started...');
+                //TODO... better confirm needed!... look at split listview
+                if (confirm('Are you sure you want to remove the following cart: ' + cart.name() + ' that currently has ' + cart.numberOfItems() + ' number of items?')) {
+                    carts.remove(cart);
+                    $('#theCartList').listview("refresh");
+                    saveAllCarts();
+                }
+                log('removeCart done.');
+            }
+
+            /// Shows the contents of the cart
+            , viewCartBegin = function (cart) {
+                log('viewCartBegin started...');
+                selectedCart(cart);
+                navigateToCartItemsPage();
+                log('viewCartBegin done.');
+            }
 
             /// Called when want to start adding a new item into a cart
             , addCartItemBegin = function () {
                 log('addCartItemBegin started...');
+                $('#sku').val('');
                 $('#itemName').val('');
                 $('#itemCategory').val('');
                 $('#itemNumberOfPieces').val('');
@@ -350,73 +396,14 @@ $(function () {
                 log('removeCartItem done.');
             }
 
-            /// Removes the currently selected cart from the collection after confirming that want to delete it
-            , removeCart = function (cart) {
-                log('removeCart started...');
-                //TODO... better confirm needed!... look at split listview
-                if (confirm('Are you sure you want to remove the following cart: ' + cart.name() + ' that currently has ' + cart.numberOfItems() + ' number of items?')) {
-                    //carts.destroy(cart); //This is probably the better way, but causes complication with count
-                    carts.remove(cart);
-                    $('#theCartList').listview("refresh");
-                    saveAllCarts();
-                }
-                log('removeCart done.');
-            }
-            /// Shows the contents of the cart
-            , viewCartBegin = function (cart) {
-                log('viewCartBegin started...');
-                selectedCart(cart);
-                navigateToCartItemsPage();
-                log('viewCartBegin done.');
-            }
-
-// #region NAVIGATION operations
-            ///Navigates to the "cartsPage". Wrapped to ensure jQuery mobile "redraws" screen correctly
-            , navigateToCartsPage = function () {
-                $.mobile.changePage(GB_PAGE_CARTS_LIST);
-                $(GB_PAGE_CARTS_LIST).trigger('pagecreate');
-                $('#theCartList').listview('refresh');
-            }
-
-            ///Navigates to the "addCartPage". Wrapped to ensure jQuery mobile "redraws" screen correctly
-            , navigateToAddCartPage = function () {
-                $.mobile.changePage(GB_PAGE_ADD_CART);
-                $(GB_PAGE_ADD_CART).trigger('pagecreate');
-            }
-
-            ///Navigates to the "cartItemsPage". Wrapped to ensure jQuery mobile "redraws" screen correctly
-            , navigateToCartItemsPage = function () {
-                $.mobile.changePage(GB_PAGE_CART_ITEMS);
-                //clear out previous values...
-
-                $(GB_PAGE_CART_ITEMS).trigger('pagecreate');
-                $('#cartItemsListView').listview('refresh');
-            }
-
-            ///Navigates to the "addCartItemPage". Wrapped to ensure jQuery mobile "redraws" screen correctly
-            , navigateToAddCartItemPage = function () {
-                $.mobile.changePage(GB_PAGE_ADD_CART_ITEM);
-                $(GB_PAGE_ADD_CART_ITEM).trigger('pagecreate');
-            }
-// #endregion NAVIGATION operations
             , startBarCodeScanning = function () {
                 alert('start scanner here...');
                 //scanner.scan();
             }
 
 // #region Product stuff
-            , selectedProduct = ko.observable(null)
             , numberOfProductsCached = function () {
                 return this.products().length;
-            }
-            , newProduct = function () {
-                this.products.push({
-                    Id: ko.observable(this.products().length + 1),
-                    Sku: ko.observable(this.products().length + 1),
-                    Name: ko.observable("New " + this.products().length),
-                    Description: ko.observable("Description " + this.products().length),
-                    IsNew: ko.observable(true)
-                });
             }
             , getProducts = function () {
                 log('getProducts started... async call began');
@@ -432,10 +419,13 @@ $(function () {
                            log('getProducts asynch mapping done.');
                        });
             }
-            , saveAllCarts = function () {
-                 localSave(carts, GB_STORAGEKEY_CARTS);
-            }
 //#endregion Product stuff
+
+// #region Other
+            , saveAllCarts = function () {
+                localSave(carts, GB_STORAGEKEY_CARTS);
+// #endregion Other
+            }
 
 // #endregion Operations
         ;
@@ -490,56 +480,7 @@ $(function () {
 
     shoppingCartViewModel.getProducts();
 
-    //ko.validation.rules.pattern.message = 'Invalid.';
-
     ko.applyBindings(shoppingCartViewModel);
 
     $.mobile.defaultPageTransition = "slide";
 });
-
-//var viewSaveID;
-//function saveThisViewModel() {
-//    // check to see if jStorage has items
-//    // if not, assign 0 to key otherwise assign count number 
-//    // as items are save chronologically and not overwritten
-//    if ($.jStorage.index().length === 0) {
-//        viewSaveID = 0;
-//    }
-//    viewSaveID = $.jStorage.index().length;
-//    // increment counter for key to localStorage
-//    viewSaveID = viewSaveID + 1;
-//    // Set data to JS format could also be ko.toJSON for a JSON object
-//    var data = ko.toJS(myViewModel);
-//    // on the dollar save via jStorage
-//    $.jStorage.set(viewSaveID, data);
-//    // return true to keep default behavior in app
-//    return true;
-//}
-
-///* Get Data From Storage and save it to Array */
-//function getDataStore() {
-//    // assign the keys of the jStorage index to an observable array
-//    myViewModel.myDataStoreIndex($.jStorage.index());
-
-//    // check to see if there are items in the data store array
-//    // if yes, remove them 
-//    if (myViewModel.myDataStore().length > 0) {
-//        // This may not scale well, but for localStorage, we don't need it too.
-//        // the problem is overwriting and double entries, this little diddy solves both
-//        myViewModel.myDataStore.removeAll();
-//        console.log("removeAll fired")
-//    }
-//    //create a temp object to hold objects that are saved in storage
-//    var savedData = {};
-//    // iterate through the array of keys
-//    for (var i = 0; i < myViewModel.myDataStoreIndex().length; i++) {
-//        // pull the objects from storage based on the keys stored in the array
-//        savedData = $.jStorage.get(myViewModel.myDataStoreIndex()[i]);
-//        // push the saved object to the observable array
-//        myViewModel.myDataStore.push(savedData);
-//        console.log("Data has been pushed to vacDataStore " + i + " times.");
-//        // when you iterate on a list view item in jQuery Mobile 
-//        // you have refresh the list. Otherwise it displays incorrectly
-//        $('#myListView').listview('refresh');
-//    }
-//}
