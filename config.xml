@@ -2,7 +2,7 @@
 <widget xmlns     = "http://www.w3.org/ns/widgets"
         xmlns:gap = "http://phonegap.com/ns/1.0"
         id        = "ca.solvera.grocery-buddy"
-        version   = "2.0.0">
+        version   = "2.1.0">
     <name>Grocery Buddy</name>
 
     <description>
