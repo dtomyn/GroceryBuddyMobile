@@ -356,13 +356,6 @@ $(function () {
             /// Called when want to start adding a new item into a cart
             , addCartItemBegin = function () {
                 log('addCartItemBegin started...');
-                log('starting call to scanner.initialize');
-                try {
-                    scanner.initialize();
-                    log('done call to scanner.initialize');
-                } catch (e) {
-                    log('unable to initialize scanner... may not have access to a scanner');
-                }
                 $('#sku').val('');
                 $('#itemName').val('');
                 $('#itemCategory').val('');
@@ -440,6 +433,10 @@ $(function () {
         /// Make the call to initialize the measurements
         getMeasurements();
         
+        //attempt to initialize the scanner
+        log('starting call to scanner.initialize');
+        scanner.initialize();
+
         /* NOTE: if want to do the "best practice" of selectively determining what to expose, would do the below */
         return {
             carts: carts
