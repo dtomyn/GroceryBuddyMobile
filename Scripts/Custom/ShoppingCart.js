@@ -16,6 +16,20 @@
 })();
 //#endregion CONSTANTS
 
+var lookupProduct = function (sku) {
+    log('lookupProduct started. sku to lookup is ' + sku);
+    var match = ko.utils.arrayFirst(products(), function (item) {
+        log('analyzing ' + item.Sku());
+        return item.Sku() == sku;
+    });
+    if (match != null) {
+        log('match found!');
+        $('#itemName').val(match.Name());
+    } else {
+        log('match NOT found');
+    }
+    log('lookupProduct done.');
+};
 
 function toProductKoObservable(product) {
     return {
@@ -57,14 +71,14 @@ $(function () {
     $('#sku').on('change', function (e) {
         log('sku change started');
         var skuToLookup = $(this).val();
-        shoppingCartViewModel.lookupProduct(skuToLookup);
+        lookupProduct(skuToLookup);
         log('sku change done.');
     });
 
     $("#sku").on("input", null, null, function (e) {
         log('sku input event fired... looking up sku');
         var skuToLookup = $(this).val();
-        shoppingCartViewModel.lookupProduct(skuToLookup);
+        lookupProduct(skuToLookup);
         log('sku input done.');
     });
 
@@ -180,20 +194,6 @@ $(function () {
     var ShoppingCartViewModel = function () {
         var self = this;
         $('#scan').hide();
-        var lookupProduct = function (sku) {
-            log('lookupProduct started. sku to lookup is ' + sku);
-            var match = ko.utils.arrayFirst(products(), function (item) {
-                log('analyzing ' + item.Sku());
-                return item.Sku() == sku;
-            });
-            if (match != null) {
-                log('match found!');
-                $('#itemName').val(match.Name());
-            } else {
-                log('match NOT found');
-            }
-            log('lookupProduct done.');
-        };
 
         var localSave = function (data, key) {
             if (GB_foundStorage != undefined && GB_foundStorage != null) {

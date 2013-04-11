@@ -46,8 +46,9 @@ var scanner = {
                 window.plugins.childBrowser.showWebPage(args.text, { showLocationBar: false });
                 }
                 */
-                $('#sku').val(args.text);
-                shoppingCartViewModel.lookupProduct(args.text);
+                var foundSku = args.text;
+                $('#sku').val(foundSku);
+                lookupProduct(foundSku);
                 //document.getElementById("info").innerHTML = args.text;
                 console.log(args);
             });
