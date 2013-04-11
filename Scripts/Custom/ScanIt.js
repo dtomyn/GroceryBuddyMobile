@@ -47,6 +47,7 @@ var scanner = {
                 }
                 */
                 var foundSku = args.text;
+                alert(foundSku);
                 $('#sku').val(foundSku);
                 lookupProduct(foundSku);
                 //document.getElementById("info").innerHTML = args.text;

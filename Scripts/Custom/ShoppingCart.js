@@ -24,9 +24,11 @@ var lookupProduct = function (sku) {
     });
     if (match != null) {
         log('match found!');
+        alert('match found!');
         $('#itemName').val(match.Name());
     } else {
         log('match NOT found');
+        alert('match NOT found!');
     }
     log('lookupProduct done.');
 };
