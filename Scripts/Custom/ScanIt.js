@@ -47,7 +47,7 @@ var scanner = {
                 }
                 */
                 $('#sku').val(args.text);
-                shoppingCartViewModel.lookupProduct(sku.text);
+                shoppingCartViewModel.lookupProduct(args.text);
                 //document.getElementById("info").innerHTML = args.text;
                 console.log(args);
             });
