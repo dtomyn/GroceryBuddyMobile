@@ -434,7 +434,8 @@ $(function () {
         getMeasurements();
         
         //attempt to initialize the scanner
-        log('starting call to scanner.initialize');
+        //NOTE: if it does initialize (i.e. it can because there is the capability)
+        //then the "scan" image will appear... otherwise it will not be there
         scanner.initialize();
 
         /* NOTE: if want to do the "best practice" of selectively determining what to expose, would do the below */
