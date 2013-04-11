@@ -357,8 +357,12 @@ $(function () {
             , addCartItemBegin = function () {
                 log('addCartItemBegin started...');
                 log('starting call to scanner.initialize');
-                scanner.initialize();
-                log('done call to scanner.initialize');
+                try {
+                    scanner.initialize();
+                    log('done call to scanner.initialize');
+                } catch (e) {
+                    log('unable to initialize scanner... may not have access to a scanner');
+                }
                 $('#sku').val('');
                 $('#itemName').val('');
                 $('#itemCategory').val('');
