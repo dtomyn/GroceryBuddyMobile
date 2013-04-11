@@ -399,11 +399,6 @@ $(function () {
                 log('removeCartItem done.');
             }
 
-            , startBarCodeScanning = function () {
-                alert('start scanner here...');
-                //scanner.scan();
-            }
-
 // #region Product stuff
             , numberOfProductsCached = function () {
                 return this.products().length;
@@ -467,8 +462,6 @@ $(function () {
             , removeCart: removeCart
 
             , removeCartItem: removeCartItem
-
-            , startBarCodeScanning: startBarCodeScanning
 
             , navigateToCartsPage: navigateToCartsPage
             , navigateToAddCartPage: navigateToAddCartPage

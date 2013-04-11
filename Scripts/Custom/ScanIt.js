@@ -48,10 +48,8 @@ var scanner = {
         console.log('Received Event: ' + id);
     },
     scan: function () {
-        alert('hi');
         console.log('scanning');
         try {
-            alert('start scan process');
             window.plugins.barcodeScanner.scan(function (args) {
                 console.log("scanner result: \n" +
                     "text: " + args.text + "\n" +
@@ -63,13 +61,12 @@ var scanner = {
                 }
                 */
                 $('#sku').val(args.text);
+                shoppingCartViewModel.lookupProduct(sku.text);
                 //document.getElementById("info").innerHTML = args.text;
                 console.log(args);
             });
-            $('#sku').val('9998');
         } catch (ex) {
             alert('Unable to scan barcode. Error message was ' + ex.message);
-            $('#sku').val('9999');
         }
     }
 
