@@ -26,9 +26,5 @@
 	background-image: url("../../Images/ShoppingCart_18.PNG");
 }
 
-.ui-icon-vs_config {
-	background-image: url("../../Images/Configuration_18.PNG");
-}
-
 .validationMessage { color: Red; }
 .customMessage { color: Orange; }        
