@@ -16,6 +16,8 @@
 })();
 //#endregion CONSTANTS
 
+var products = ko.observableArray([]);
+
 var lookupProduct = function (sku) {
     log('lookupProduct started. sku to lookup is ' + sku);
     var match = ko.utils.arrayFirst(products(), function (item) {
@@ -24,11 +26,9 @@ var lookupProduct = function (sku) {
     });
     if (match != null) {
         log('match found!');
-        alert('match found!');
         $('#itemName').val(match.Name());
     } else {
         log('match NOT found');
-        alert('match NOT found!');
     }
     log('lookupProduct done.');
 };
@@ -239,7 +239,6 @@ $(function () {
             /// A list of all available measurements that may be selected when entering an item
             , availableMeasurements = ko.observableArray([])
             /// A list of all available products... pretty heavy handed but...
-            , products = ko.observableArray([])
 // #endregion Properties
 
 // #region Operations
