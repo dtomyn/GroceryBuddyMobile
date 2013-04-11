@@ -33,9 +33,9 @@
     <script src="Scripts/modernizr-2.6.2.min.js"></script>
     <script src="Scripts/consolelog.min.js"></script>
     <script src="Scripts/consolelog.detailprint.min.js"></script>
-    <!--<script src="cordova.js"></script>-->
-    <!--<script src="barcodescanner.js"></script>-->
-    <!--<script src="childbrowser.js"></script>-->
+    <script src="cordova.js"></script>
+    <script src="barcodescanner.js"></script>
+    <script src="childbrowser.js"></script>
     <!-- End API JavaScript files -->
 
     <!-- Begin Custom CSS files -->
@@ -44,7 +44,7 @@
 
     <!-- Begin Custom JavaScript files -->
     <script src="Scripts/Custom/Utils.js"></script>
-    <!--<script src="Scripts/Custom/ScanIt.js"></script>-->
+    <script src="Scripts/Custom/ScanIt.js"></script>
     <script src="Scripts/Custom/ShoppingCart.js"></script> 
     <!-- End Custom JavaScript files -->
 
@@ -305,7 +305,7 @@
             <div>
                 <label for="sku">SKU:</label>
                 <input id="sku" type="text" placeholder="Enter (or scan) SKU" required />
-                <a data-bind="click: $root.startBarCodeScanning">
+                <a id="scan">
                     <img alt="Click to start bar code scanner" class="barCodeImage" src="Images/Barcode.PNG" />
                 </a>
             </div>
@@ -352,6 +352,27 @@
 
     </div>
     <!-- /ADD A CART ITEM -->
+
+    <!-- BARCODE SCANNING -->
+<!--    <div id="barCodeScanning"
+        data-role="page"
+        data-theme="b"
+        data-title="Scanning">
+
+        <div data-role="content">
+            <div class="app">
+                <h1>Apache Cordova</h1>
+                <div id="deviceready" class="blink">
+                    <p class="event listening">Connecting to Device</p>
+                    <p class="event received">Device is Ready</p>
+                </div>
+                <p><a href="#" id="scan">SCAN SOMETHING!</a></p>
+                <p id="P1"></p>
+            </div>
+        </div>
+    </div>-->
+
+    <!-- /BARCODE SCANNING -->
 
     <!-- config -->
     <div id="config"

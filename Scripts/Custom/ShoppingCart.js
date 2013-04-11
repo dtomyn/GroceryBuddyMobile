@@ -355,6 +355,9 @@ $(function () {
             /// Called when want to start adding a new item into a cart
             , addCartItemBegin = function () {
                 log('addCartItemBegin started...');
+                log('starting call to scanner.initialize');
+                scanner.initialize();
+                log('done call to scanner.initialize');
                 $('#sku').val('');
                 $('#itemName').val('');
                 $('#itemCategory').val('');
