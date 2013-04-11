@@ -179,7 +179,7 @@ $(function () {
     /// Overall view model for the application
     var ShoppingCartViewModel = function () {
         var self = this;
-
+        $('#scan').hide();
         var lookupProduct = function (sku) {
             log('lookupProduct started. sku to lookup is ' + sku);
             var match = ko.utils.arrayFirst(products(), function (item) {
