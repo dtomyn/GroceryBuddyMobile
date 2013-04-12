@@ -1,5 +1,13 @@
 ﻿/// <reference path="_references.js" />
 
+function logWrapped(data) {
+    try {
+        log(data);
+    } catch {
+        //yuck!
+    }
+}
+
 //#region CONSTANTS
 (function () {
     GB_BASE_DATA_LOCATION = 'http://grocerybuddydata.azurewebsites.net';
@@ -19,18 +27,18 @@
 var products = ko.observableArray([]);
 
 var lookupProduct = function (sku) {
-    log('lookupProduct started. sku to lookup is ' + sku);
+    logWrapped('lookupProduct started. sku to lookup is ' + sku);
     var match = ko.utils.arrayFirst(products(), function (item) {
-        log('analyzing ' + item.Sku());
+        logWrapped('analyzing ' + item.Sku());
         return item.Sku() == sku;
     });
     if (match != null) {
-        log('match found!');
+        logWrapped('match found!');
         $('#itemName').val(match.Name());
     } else {
-        log('match NOT found');
+        logWrapped('match NOT found');
     }
-    log('lookupProduct done.');
+    logWrapped('lookupProduct done.');
 };
 
 function toProductKoObservable(product) {
@@ -45,10 +53,10 @@ function toProductKoObservable(product) {
 
 
 $(function () {
-    log('****Beginning GroceryBuddy application...');
+    logWrapped('****Beginning GroceryBuddy application...');
 
     if ('localStorage' in window && window['localStorage'] !== null) {
-        log('localStorage found!');
+        logWrapped('localStorage found!');
         var GB_foundStorage = window.localStorage;
     } else {
         alert('Sorry, local storage not supported. Any changes made will be lost once application closed');
@@ -71,17 +79,17 @@ $(function () {
 
     // TODO: find better event perhaps?
     $('#sku').on('change', function (e) {
-        log('sku change started');
+        logWrapped('sku change started');
         var skuToLookup = $(this).val();
         lookupProduct(skuToLookup);
-        log('sku change done.');
+        logWrapped('sku change done.');
     });
 
     $("#sku").on("input", null, null, function (e) {
-        log('sku input event fired... looking up sku');
+        logWrapped('sku input event fired... looking up sku');
         var skuToLookup = $(this).val();
         lookupProduct(skuToLookup);
-        log('sku input done.');
+        logWrapped('sku input done.');
     });
 
     /// Class to represent a category
@@ -199,11 +207,11 @@ $(function () {
 
         var localSave = function (data, key) {
             if (GB_foundStorage != undefined && GB_foundStorage != null) {
-                log('localSave started...');
+                logWrapped('localSave started...');
                 try {
                     var d = ko.toJSON(data);
                     GB_foundStorage.setItem(key, d);
-                    log('localSave done.');
+                    logWrapped('localSave done.');
                 } catch (ex) {
                     alert('error while storing data to localStorage');
                 }
@@ -212,15 +220,15 @@ $(function () {
 
         var localGet = function (key) {
             if (GB_foundStorage != undefined && GB_foundStorage != null) {
-                log('localGet started...');
+                logWrapped('localGet started...');
                 var d = localStorage.getItem(key);
                 if (d == null || d == "undefined" || d == undefined) {
-                    log('localGet is done. Data not found');
+                    logWrapped('localGet is done. Data not found');
                     return null;
                 } else {
-                    log('found data, now parsing...');
+                    logWrapped('found data, now parsing...');
                     data = JSON.parse(d);
-                    log('localGet done. Data found and parsed');
+                    logWrapped('localGet done. Data found and parsed');
                     return data;
                 }
             } else {
@@ -244,7 +252,7 @@ $(function () {
 // #region Operations
             /// Determines if there are any shopping carts stored locally and if so loads them into our collection
             , getCarts = function () {
-                log('getCarts started...');
+                logWrapped('getCarts started...');
                 var foundCartData = localGet(GB_STORAGEKEY_CARTS);
                 if (foundCartData != null) {
                     $.each(foundCartData, function (index) {
@@ -258,26 +266,26 @@ $(function () {
                     carts.push(new GroceryCart("Demo cart 1"));
                     carts.push(new GroceryCart("Demo cart 2"));
                 }
-                log('getCarts done.');
+                logWrapped('getCarts done.');
             }
             /// Loads up availableCategories collection with a few category types
             , getCategories = function () {
-                log('getCategories started...');
+                logWrapped('getCategories started...');
                 availableCategories = ko.observableArray([]);
                 availableCategories.push(new Category("Produce", "Produce", "TODO"));
                 availableCategories.push(new Category("Dairy", "Dairy", "TODO"));
                 availableCategories.push(new Category("Junk Food", "Junk Food", "TODO"));
-                log('getCategories done.');
+                logWrapped('getCategories done.');
             }
             /// Loads up availableMeasurements collection with a few measurement types
             , getMeasurements = function () {
-                log('getMeasurements started...');
+                logWrapped('getMeasurements started...');
                 availableMeasurements = ko.observableArray([]);
                 availableMeasurements.push(new Measurement("Grams", "Grams", "TODO"));
                 availableMeasurements.push(new Measurement("KG", "KG", "TODO"));
                 availableMeasurements.push(new Measurement("ML", "ML", "TODO"));
                 availableMeasurements.push(new Measurement("L", "L", "TODO"));
-                log('getMeasurements done.');
+                logWrapped('getMeasurements done.');
             }
 // #region NAVIGATION operations
             ///Navigates to the "cartsPage". Wrapped to ensure jQuery mobile "redraws" screen correctly
@@ -311,51 +319,51 @@ $(function () {
 
             /// Called when want to start adding a new cart
             , addCartBegin = function () {
-                log('addCartBegin started...');
+                logWrapped('addCartBegin started...');
                 $('#currentCartName').val('');
                 navigateToAddCartPage();
-                log('addCartBegin done.');
+                logWrapped('addCartBegin done.');
             }
             /// Cancels the save cart operation and navigates back to the main carts page
             , addCartCancel = function () {
-                log('addCartCancel started...');
+                logWrapped('addCartCancel started...');
                 $('#currentCartName').val('');
                 navigateToCartsPage();
-                log('addCartCancel done.');
+                logWrapped('addCartCancel done.');
             }
             /// Saves a cart to the carts collection and then navigates back to the main carts page
             , addCartSave = function () {
-                log('addCartSave started...');
+                logWrapped('addCartSave started...');
                 var gc = new GroceryCart($('#currentCartName').val());
                 carts.push(gc);
                 saveAllCarts();
                 $('#currentCartName').val('');
                 navigateToCartsPage();
-                log('addCartSave done.');
+                logWrapped('addCartSave done.');
             }
             /// Removes the currently selected cart from the collection after confirming that want to delete it
             , removeCart = function (cart) {
-                log('removeCart started...');
+                logWrapped('removeCart started...');
                 //TODO... better confirm needed!... look at split listview
                 if (confirm('Are you sure you want to remove the following cart: ' + cart.name() + ' that currently has ' + cart.numberOfItems() + ' number of items?')) {
                     carts.remove(cart);
                     $('#theCartList').listview("refresh");
                     saveAllCarts();
                 }
-                log('removeCart done.');
+                logWrapped('removeCart done.');
             }
 
             /// Shows the contents of the cart
             , viewCartBegin = function (cart) {
-                log('viewCartBegin started...');
+                logWrapped('viewCartBegin started...');
                 selectedCart(cart);
                 navigateToCartItemsPage();
-                log('viewCartBegin done.');
+                logWrapped('viewCartBegin done.');
             }
 
             /// Called when want to start adding a new item into a cart
             , addCartItemBegin = function () {
-                log('addCartItemBegin started...');
+                logWrapped('addCartItemBegin started...');
                 $('#sku').val('');
                 $('#itemName').val('');
                 $('#itemCategory').val('');
@@ -363,11 +371,11 @@ $(function () {
                 $('#itemSize').val('');
                 $('#itemMeasurement').val('');
                 navigateToAddCartItemPage();
-                log('addCartItemBegin done.');
+                logWrapped('addCartItemBegin done.');
             }
             /// Saves a cart items to the currently selected cart
             , addCartItemSave = function () {
-                log('addCartItemSave started...');
+                logWrapped('addCartItemSave started...');
                 //TODO: better way to do this is to have an observable item on this page... for now using standard jQuery to get values
                 var ci = new CartItem(
                     $('#sku').val()
@@ -383,18 +391,18 @@ $(function () {
                     saveAllCarts();
                 }
                 navigateToCartItemsPage();
-                log('addCartItemSave done.');
+                logWrapped('addCartItemSave done.');
             }
             /// Removes the currently selected cart from the collection after confirming that want to delete it 
             , removeCartItem = function (cartItem) {
-                log('removeCartItem started...');
+                logWrapped('removeCartItem started...');
                 //TODO... better confirm needed!... look at split listview
                 if (confirm('Are you sure you want to remove this item?')) {
                     selectedCart().removeItem(cartItem);
                     $('#cartItemsListView').listview('refresh');
                     saveAllCarts();
                 }
-                log('removeCartItem done.');
+                logWrapped('removeCartItem done.');
             }
 
 // #region Product stuff
@@ -402,17 +410,17 @@ $(function () {
                 return this.products().length;
             }
             , getProducts = function () {
-                log('getProducts started... async call began');
+                logWrapped('getProducts started... async call began');
                 executeJSONPCall((GB_BASE_DATA_LOCATION + "/api/Products?callback=?"),
                        function (data) {
-                           log('getProducts async completed, now mapping products...');
+                           logWrapped('getProducts async completed, now mapping products...');
                            //viewModel.items([]);
                            shoppingCartViewModel.products([]);
                            //shoppingCartViewModel.products.removeAll();
                            $.each(data, function (index) {
                                shoppingCartViewModel.products.push(toProductKoObservable(data[index]));
                            });
-                           log('getProducts asynch mapping done.');
+                           logWrapped('getProducts asynch mapping done.');
                        });
             }
 //#endregion Product stuff
