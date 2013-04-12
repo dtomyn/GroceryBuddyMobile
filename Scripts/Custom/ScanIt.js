@@ -35,27 +35,27 @@ var scanner = {
         //listeningElement.setAttribute('style', 'display:none;');
         //receivedElement.setAttribute('style', 'display:block;');
 
-        console.log('Received Event: ' + id);
+        //log('Received Event: ' + id);
     },
     scan: function () {
         console.log('scanning');
         try {
             window.plugins.barcodeScanner.scan(function (args) {
-                console.log("scanner result: \n" +
-                    "text: " + args.text + "\n" +
-                    "format: " + args.format + "\n" +
-                    "cancelled: " + args.cancelled + "\n");
+                //log("scanner result: \n" +
+                //    "text: " + args.text + "\n" +
+                //    "format: " + args.format + "\n" +
+                //    "cancelled: " + args.cancelled + "\n");
                 /*
                 if (args.format == "QR_CODE") {
                 window.plugins.childBrowser.showWebPage(args.text, { showLocationBar: false });
                 }
                 */
                 var foundSku = args.text;
-                console.log(foundSku);
+                //log(foundSku);
                 $('#sku').val(foundSku);
                 lookupProduct(foundSku);
                 //document.getElementById("info").innerHTML = args.text;
-                console.log(args);
+                //log(args);
             });
         } catch (ex) {
             alert('Unable to scan barcode. Error message was ' + ex.message);
