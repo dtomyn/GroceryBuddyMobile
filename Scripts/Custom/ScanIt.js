@@ -11,8 +11,12 @@ var scanner = {
     // Bind any events that are required on startup. Common events are:
     // `load`, `deviceready`, `offline`, and `online`.
     bindEvents: function () {
-        document.addEventListener('deviceready', this.onDeviceReady, false);
-        document.getElementById('scan').addEventListener('click', this.scan, false);
+        try {
+            document.addEventListener('deviceready', this.onDeviceReady, false);
+            document.getElementById('scan').addEventListener('click', this.scan, false);
+        } catch {
+            //do nothing
+        }
     },
     // deviceready Event Handler
     //
